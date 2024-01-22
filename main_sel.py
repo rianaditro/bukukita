@@ -11,7 +11,7 @@ def get_html(url):
 
     driver = webdriver.Chrome(option)
     driver.get(url)
-    driver.implicitly_wait(3)
+    
     html = driver.page_source
     
     #first running
@@ -69,7 +69,7 @@ def get_price(soup : BeautifulSoup):
     try: 
         price_old = price_box.find('span',class_='price-box__old').text.replace("Rp ","").replace(".","")
     except AttributeError:
-        price_old = "0"
+        price_old = price_new
         
     price_new = price_box.find('span',class_='price-box__new').text.replace("Rp ","").replace(".","")
     #print("Getting price")
@@ -89,13 +89,16 @@ def get_product_info(soup : BeautifulSoup):
 
     result_product_info = dict()
 
-    #limiting unnecessary tag
-    range_start = len(column1)-3
-
+    range_start = len(column1)
     for i in range(range_start):
         key = column1[i].text.strip()
-        value = column2[i].text.strip().replace("\xa0·","")
+        value = column2[i].text.strip().replace("\xa0··","")
         result_product_info[key] = value
+
+    #remove unnecessary tag
+    empty_key = ['Nama',"Hp","Email"]
+    for key in empty_key:
+        result_product_info.pop(key,None)
 
     #get price
     price = get_price(soup)
@@ -125,6 +128,7 @@ if __name__=="__main__":
     main_url = "https://www.bukukita.com/katalog/21-majalah.html/"
         
     links = get_urls(main_url)
+    #links = ["https://www.bukukita.com/Majalah/Animasi-&-Komik/169611-Seri-Keluarga-Super-Irit-25-:-Jagoan-Hidup-Hemat-baru-input.html"]
     counter = 1
     try:
         for link in links:
@@ -140,3 +144,5 @@ if __name__=="__main__":
     except Exception as e:
         save_to_excel(result)
         print(e)
+
+"last running 7m 6s"
